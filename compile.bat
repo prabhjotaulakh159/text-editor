@@ -1,0 +1,1 @@
+g++ src/main.cpp -municode -o target/target.exe
