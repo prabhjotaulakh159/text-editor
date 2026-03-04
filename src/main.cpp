@@ -2,12 +2,25 @@
 #define UNICODE
 #endif
 
+#ifndef ID_EDITCHILD
+#define ID_EDITCHILD 100
+#endif 
+
 #include <windows.h>
+#include <iostream>
+
+HWND PrabhTextEditor_CreateMultiLineEditControl(HWND parent);
+
+static HWND hwndEditMultiLine;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
   switch (uMsg) {
-    case WM_DESTROY: {
-      PostQuitMessage(0);
+    case WM_CREATE: {
+      hwndEditMultiLine = PrabhTextEditor_CreateMultiLineEditControl(hwnd);
+      return 0;
+    }
+    case WM_SIZE: {
+      MoveWindow(hwndEditMultiLine, 0, 0, LOWORD(lParam), HIWORD(lParam), TRUE);
       return 0;
     }
     case WM_PAINT: {
@@ -15,10 +28,32 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
       HDC hdc = BeginPaint(hwnd, &ps);
       FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_WINDOW+1));
       EndPaint(hwnd, &ps);
+      return 0;
     }
-    return 0;
+    case WM_DESTROY: {
+      PostQuitMessage(0);
+      return 0;
+    }
+    default:
+      return DefWindowProc(hwnd, uMsg, wParam, lParam);  
   }
-  return DefWindowProc(hwnd, uMsg, wParam, lParam);  
+  return 0; 
+}
+
+// https://learn.microsoft.com/en-us/windows/win32/controls/use-a-multiline-edit-control
+HWND PrabhTextEditor_CreateMultiLineEditControl(HWND parent) {
+  HWND hwndEdit = CreateWindowEx(
+    0, 
+    L"EDIT", 
+    NULL, 
+    WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL,
+    0, 0, 0, 0, 
+    parent, 
+    (HMENU) ID_EDITCHILD, 
+    (HINSTANCE) GetWindowLongPtr(parent, GWLP_HINSTANCE), 
+    NULL
+  );
+  return hwndEdit;
 }
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
