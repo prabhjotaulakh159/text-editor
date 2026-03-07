@@ -6,10 +6,14 @@
 #define ID_EDITCHILD 100
 #endif 
 
+#define PRABH_MENU_OPEN_ID 1000
+#define PRABH_MENU_SAVE_ID 1001
+
 #include <windows.h>
 #include <iostream>
 
 HWND PrabhTextEditor_CreateMultiLineEditControl(HWND parent);
+HMENU PrabhTextEditor_GetMenu();
 
 static HWND hwndEditMultiLine;
 
@@ -17,6 +21,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
   switch (uMsg) {
     case WM_CREATE: {
       hwndEditMultiLine = PrabhTextEditor_CreateMultiLineEditControl(hwnd);
+      HMENU menu = PrabhTextEditor_GetMenu();
+      SetMenu(hwnd, menu);
       return 0;
     }
     case WM_SIZE: {
@@ -54,6 +60,13 @@ HWND PrabhTextEditor_CreateMultiLineEditControl(HWND parent) {
     NULL
   );
   return hwndEdit;
+}
+
+HMENU PrabhTextEditor_GetMenu() {
+  HMENU menu = CreateMenu();
+  AppendMenu(menu, MF_STRING, PRABH_MENU_OPEN_ID, L"Open");
+  AppendMenu(menu, MF_STRING, PRABH_MENU_SAVE_ID, L"Save");
+  return menu;
 }
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
